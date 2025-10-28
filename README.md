@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 📦 PackPro - Proje Dosyaları
 
 Bu klasörde React projeniz için gerekli TÜM dosyalar bulunmaktadır.
@@ -89,3 +90,6 @@ Vercel'e deploy için:
 ---
 
 **Başarılar! 🚀**
+=======
+# packpro-website
+>>>>>>> cacaa395e0eb9fa7b2f4c638c1bf3fa9e816a3b5
