@@ -10,6 +10,7 @@ import {
 
 const AmbalajWebsite = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [products, setProducts] = useState([]);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState('home');
@@ -34,34 +35,61 @@ const AmbalajWebsite = () => {
   };
 
   // Güncel dolar kuru çekme (gerçek API entegrasyonu)
-  useEffect(() => {
-    const fetchExchangeRate = async () => {
-      setIsLoadingRate(true);
-      try {
-        // ExchangeRate-API (Ücretsiz, günlük 1500 istek)
-        const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-        const data = await response.json();
-        
-        if (data && data.rates && data.rates.TRY) {
-          setExchangeRate(data.rates.TRY);
-          console.log('Döviz kuru güncellendi:', data.rates.TRY);
+useEffect(() => {
+  const testExternalAPI = async () => {
+    try {
+      console.log('Testing external API...');
+      
+      // Fake Store API test (Supabase yerine)
+      const response = await fetch('https://fakestoreapi.com/products?limit=8');
+      const data = await response.json();
+      
+      console.log('External API response:', data);
+      
+      // Products format'ına çevir
+      const formattedProducts = data.map(item => ({
+        id: item.id,
+        name: item.title.substring(0, 30) + '...', // Kısa isim
+        priceUSD: item.price,
+        category: item.category,
+        categoryName: item.category.charAt(0).toUpperCase() + item.category.slice(1),
+        description: item.description.substring(0, 50) + '...',
+        stock: Math.floor(Math.random() * 1000) + 100, // Random stock
+        rating: item.rating.rate,
+        color: getRandomColor() // Renk fonksiyonu ekleyeceğiz
+      }));
+      
+      setProducts(formattedProducts);
+    } catch (error) {
+      console.error('External API error:', error);
+      // Fallback products
+      setProducts([
+        {
+          id: 1,
+          name: 'Test Ürün',
+          priceUSD: 5.99,
+          category: 'test',
+          categoryName: 'Test',
+          description: 'Test açıklama',
+          stock: 100,
+          rating: 4.5,
+          color: 'bg-blue-500'
         }
-      } catch (error) {
-        console.error('Döviz kuru alınamadı:', error);
-        // Fallback değer zaten 34.50
-      } finally {
-        setIsLoadingRate(false);
-      }
-    };
+      ]);
+    }
+  };
+  
+  testExternalAPI();
+}, []);
 
-    fetchExchangeRate();
-    
-    // Her 1 saatte bir güncelle (3600000 ms)
-    const interval = setInterval(fetchExchangeRate, 3600000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
+// Color helper function (useEffect'den sonra ekle)
+const getRandomColor = () => {
+  const colors = [
+    'bg-blue-500', 'bg-green-500', 'bg-purple-500', 
+    'bg-pink-500', 'bg-orange-500', 'bg-teal-500'
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
+};
   // Test ürünler
 
   // Kategoriler
