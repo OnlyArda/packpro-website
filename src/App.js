@@ -160,12 +160,27 @@ useEffect(() => {
 }, []);
 
 // Logout function
+// Logout function'ını bul ve şununla değiştir
 const handleLogout = () => {
-  localStorage.removeItem('currentUser');
-  sessionStorage.removeItem('userSession');
-  setUser(null);
-  navigateToPage('home');
-  console.log('👋 Çıkış yapıldı');
+  try {
+    console.log('👋 Logging out...');
+    
+    // Clear all session data
+    localStorage.removeItem('currentUser');
+    sessionStorage.removeItem('userSession');
+    
+    // Clear user state
+    setUser(null);
+    
+    // Navigate to home
+    navigateToPage('home');
+    
+    console.log('✅ Logout successful');
+    alert('👋 Başarıyla çıkış yapıldı!');
+    
+  } catch (error) {
+    console.error('❌ Logout error:', error);
+  }
 };
   // Test ürünler
 
