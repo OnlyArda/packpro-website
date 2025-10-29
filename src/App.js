@@ -982,25 +982,93 @@ const handleRegister = async (e) => {
   setIsLoading(true);
   
   try {
-    // Basit localStorage test (error vermez)
+    console.log('🔐 Register Debug başlıyor...');
+    console.log('📋 Form data:', formData);
+    
+    // Form validation
+    if (!formData.email || !formData.password || !formData.name) {
+      alert('❌ Lütfen gerekli alanları doldurun');
+      return;
+    }
+    
+    // Password hash
+    const passwordHash = btoa(formData.password + 'ambalaj_salt_2025');
+    console.log('🔒 Password hash:', passwordHash);
+    
+    // Check if user exists
+    console.log('🔍 Checking if user exists...');
+    const checkResponse = await fetch(`https://xdlaylmiwiukgcyqlvel.supabase.co/rest/v1/users?email=eq.${formData.email}`, {
+      headers: {
+        'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
+        'Authorization': 'Bearer sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD'
+      }
+    });
+    
+    console.log('📡 Check response status:', checkResponse.status);
+    const existingUsers = await checkResponse.json();
+    console.log('👥 Existing users:', existingUsers);
+    
+    if (existingUsers.length > 0) {
+      alert('❌ Bu email ile zaten hesap mevcut');
+      return;
+    }
+    
+    // Create new user
+    console.log('✨ Creating new user...');
     const userData = {
-      id: Date.now(),
       email: formData.email,
       name: formData.name,
       phone: formData.phone,
-      balance: 0.00,
-      createdAt: new Date().toISOString()
+      password_hash: passwordHash,
+      balance: 0.00
     };
+    console.log('📦 User data to send:', userData);
     
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-    setUser(userData);
-    alert('✅ Hesap oluşturuldu!');
-    setIsRegisterOpen(false);
-    navigateToPage('dashboard');
+    const response = await fetch('https://xdlaylmiwiukgcyqlvel.supabase.co/rest/v1/users', {
+      method: 'POST',
+      headers: {
+        'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
+        'Authorization': 'Bearer sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(userData)
+    });
+    
+    console.log('📡 Create response status:', response.status);
+    console.log('📄 Create response ok:', response.ok);
+    
+    if (response.ok) {
+      const createdUser = await response.json();
+      console.log('✅ User created in database:', createdUser);
+      
+      // Session'a kaydet
+      const sessionUser = {
+        id: createdUser[0].id,
+        email: createdUser[0].email,
+        name: createdUser[0].name,
+        phone: createdUser[0].phone,
+        balance: createdUser[0].balance,
+        loginTime: new Date().toISOString()
+      };
+      
+      localStorage.setItem('currentUser', JSON.stringify(sessionUser));
+      sessionStorage.setItem('userSession', 'active');
+      setUser(sessionUser);
+      
+      alert('✅ Hesap başarıyla oluşturuldu!');
+      setIsRegisterOpen(false);
+      navigateToPage('dashboard');
+      
+    } else {
+      const errorData = await response.text();
+      console.log('❌ Create response error:', errorData);
+      alert('❌ Hesap oluşturulamadı - API Error');
+    }
     
   } catch (error) {
-    console.error('Error:', error);
-    alert('❌ Hata');
+    console.error('❌ Register error:', error);
+    alert('❌ Bağlantı hatası: ' + error.message);
   } finally {
     setIsLoading(false);
   }
