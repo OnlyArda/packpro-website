@@ -79,30 +79,29 @@ useEffect(() => {
   const fetchExchangeRate = async () => {
     setIsLoadingRate(true);
     try {
-      console.log('🔄 Gerçek döviz kuru alınıyor...');
+      console.log('🔄 Ücretsiz API ile kur alınıyor...');
       
-      // Gerçek API call
-      const response = await fetch('https://v6.exchangerate-api.com/v6/latest/USD');
+      // Ücretsiz endpoint (key gerektirmez)
+      const response = await fetch('https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/usd/try.json');
       const data = await response.json();
       
-      if (data && data.conversion_rates && data.conversion_rates.TRY) {
-        const rate = data.conversion_rates.TRY;
+      if (data && data.rates && data.rates.TRY) {
+        const rate = data.rates.TRY;
         setExchangeRate(rate);
         console.log('💱 Güncel kur:', rate, 'TRY');
       } else {
-        // Fallback
+        console.log('⚠️ API response hatası, fallback kullanılıyor');
         setExchangeRate(34.85);
-        console.log('⚠️ Fallback kur kullanıldı');
       }
     } catch (error) {
       console.error('❌ API hatası:', error);
-      setExchangeRate(34.85); // Safe fallback
+      setExchangeRate(34.85);
+      console.log('⚠️ Network hatası, fallback kullanılıyor');
     } finally {
       setIsLoadingRate(false);
     }
   };
 
-  // İlk yükleme
   fetchExchangeRate();
   
   // Her 30 dakikada bir güncelle
@@ -110,7 +109,6 @@ useEffect(() => {
   
   return () => clearInterval(interval);
 }, []);
-
 // Category mapping function
 
   // Test ürünler
