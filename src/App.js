@@ -1,4 +1,4 @@
-const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
+const SUPABASE_URL = 'https://xdlaylmiwiukgcyqlvel.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD';
 
 // Initialize Supabase client directly
