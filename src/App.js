@@ -35,33 +35,28 @@ const AmbalajWebsite = () => {
   };
 
   // Güncel dolar kuru çekme (gerçek API entegrasyonu)
-  useEffect(() => {
-    const fetchExchangeRate = async () => {
-      setIsLoadingRate(true);
-      try {
-        // ExchangeRate-API (Ücretsiz, günlük 1500 istek)
-        const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-        const data = await response.json();
-        
-        if (data && data.rates && data.rates.TRY) {
-          setExchangeRate(data.rates.TRY);
-          console.log('Döviz kuru güncellendi:', data.rates.TRY);
+// Supabase import yok - sadece fetch
+useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('https://xdlaylmiwiukgcyqlvel.supabase.co/rest/v1/products', {
+        headers: {
+          'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
+          'Authorization': 'Bearer sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD'
         }
-      } catch (error) {
-        console.error('Döviz kuru alınamadı:', error);
-        // Fallback değer zaten 34.50
-      } finally {
-        setIsLoadingRate(false);
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setProducts(data);
       }
-    };
-
-    fetchExchangeRate();
-    
-    // Her 1 saatte bir güncelle (3600000 ms)
-    const interval = setInterval(fetchExchangeRate, 3600000);
-    
-    return () => clearInterval(interval);
-  }, []);
+    } catch (error) {
+      console.log('API error:', error);
+    }
+  };
+  
+  fetchProducts();
+}, []);
 
   // Test ürünleri
  
