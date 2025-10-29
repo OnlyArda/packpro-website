@@ -41,8 +41,8 @@ useEffect(() => {
     try {
       const response = await fetch('https://xdlaylmiwiukgcyqlvel.supabase.co/rest/v1/products', {
         headers: {
-          'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
-          'Authorization': 'Bearer sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD'
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkbGF5bG1pd2l1a2djeXFsdmVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2ODk1MDksImV4cCI6MjA3NzI2NTUwOX0.1cPcYaGbBZYxqq4XkjWv2Wd9FcxQdLBAu1wfCZNVUFI',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkbGF5bG1pd2l1a2djeXFsdmVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2ODk1MDksImV4cCI6MjA3NzI2NTUwOX0.1cPcYaGbBZYxqq4XkjWv2Wd9FcxQdLBAu1wfCZNVUFI'
         }
       });
       
