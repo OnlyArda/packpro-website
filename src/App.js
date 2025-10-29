@@ -35,6 +35,7 @@ const AmbalajWebsite = () => {
   };
 
   // Güncel dolar kuru çekme (gerçek API entegrasyonu)
+// 1. Products useEffect (mevcut kodun)
 useEffect(() => {
   const fetchProducts = async () => {
     try {
@@ -70,6 +71,59 @@ useEffect(() => {
   };
   
   fetchProducts();
+}, []);
+
+// 2. Exchange Rate useEffect (YENİ - bunu ekle)
+useEffect(() => {
+  const fetchExchangeRate = async () => {
+    setIsLoadingRate(true);
+    try {
+      console.log('🔄 Döviz kuru alınıyor...');
+      
+      // ExchangeRate-API v6 (güncel ve ücretsiz)
+      const response = await fetch('https://v6.exchangerate-api.com/v6/latest/USD');
+      const data = await response.json();
+      
+      if (data && data.conversion_rates && data.conversion_rates.TRY) {
+        const rate = data.conversion_rates.TRY;
+        setExchangeRate(rate);
+        console.log('💱 Güncel döviz kuru:', rate, 'TRY');
+        
+        // LocalStorage'a kaydet (offline backup)
+        localStorage.setItem('lastExchangeRate', rate);
+        localStorage.setItem('lastUpdateTime', Date.now());
+      }
+    } catch (error) {
+      console.error('❌ Döviz kuru alınamadı:', error);
+      
+      // LocalStorage'dan son kuru al
+      const savedRate = localStorage.getItem('lastExchangeRate');
+      if (savedRate) {
+        setExchangeRate(parseFloat(savedRate));
+        console.log('💾 Kaydedilmiş kur kullanılıyor:', savedRate);
+      } else {
+        // Fallback rate (manuel güncelle)
+        setExchangeRate(34.85); // Google'dan kontrol et
+        console.log('⚠️ Fallback kur kullanılıyor: 34.85');
+      }
+    } finally {
+      setIsLoadingRate(false);
+    }
+  };
+
+  // İlk yükleme
+  fetchExchangeRate();
+  
+  // Her 15 dakikada bir güncelle (900000 ms)
+  const interval = setInterval(() => {
+    console.log('🔄 Otomatik kur güncellemesi...');
+    fetchExchangeRate();
+  }, 900000);
+  
+  // Cleanup function
+  return () => {
+    clearInterval(interval);
+  };
 }, []);
 
 // Category mapping function
