@@ -16,7 +16,7 @@ const AmbalajWebsite = () => {
   const [currentPage, setCurrentPage] = useState('home');
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
-  const [exchangeRate, setExchangeRate] = useState(34.50);
+  const [exchangeRate, setExchangeRate] = useState(0); // Test
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
