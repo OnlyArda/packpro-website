@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 
 const AmbalajWebsite = () => {
+  const [products, setProducts] = useState([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
