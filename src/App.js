@@ -36,60 +36,39 @@ const AmbalajWebsite = () => {
 
   // Güncel dolar kuru çekme (gerçek API entegrasyonu)
 useEffect(() => {
-  const testExternalAPI = async () => {
+  const testSupabaseDirectly = async () => {
     try {
-      console.log('Testing external API...');
+      console.log('Testing Supabase directly...');
       
-      // Fake Store API test (Supabase yerine)
-      const response = await fetch('https://fakestoreapi.com/products?limit=8');
-      const data = await response.json();
-      
-      console.log('External API response:', data);
-      
-      // Products format'ına çevir
-      const formattedProducts = data.map(item => ({
-        id: item.id,
-        name: item.title.substring(0, 30) + '...', // Kısa isim
-        priceUSD: item.price,
-        category: item.category,
-        categoryName: item.category.charAt(0).toUpperCase() + item.category.slice(1),
-        description: item.description.substring(0, 50) + '...',
-        stock: Math.floor(Math.random() * 1000) + 100, // Random stock
-        rating: item.rating.rate,
-        color: getRandomColor() // Renk fonksiyonu ekleyeceğiz
-      }));
-      
-      setProducts(formattedProducts);
-    } catch (error) {
-      console.error('External API error:', error);
-      // Fallback products
-      setProducts([
-        {
-          id: 1,
-          name: 'Test Ürün',
-          priceUSD: 5.99,
-          category: 'test',
-          categoryName: 'Test',
-          description: 'Test açıklama',
-          stock: 100,
-          rating: 4.5,
-          color: 'bg-blue-500'
+      // Direct fetch (Supabase client kullanmadan)
+      const response = await fetch('https://xdlaylmiwiukgcyqlvel.supabase.co/rest/v1/products', {
+        headers: {
+          'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
+          'Authorization': 'Bearer sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
+          'Content-Type': 'application/json'
         }
-      ]);
+      });
+      
+      console.log('Supabase response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Supabase data:', data);
+        setProducts(data);
+      } else {
+        console.error('Supabase error:', response.status, response.statusText);
+        // Fake API fallback
+        const fallbackResponse = await fetch('https://fakestoreapi.com/products?limit=8');
+        const fallbackData = await fallbackResponse.json();
+        setProducts(fallbackData.map(/* format code */));
+      }
+    } catch (error) {
+      console.error('Connection error:', error);
     }
   };
   
-  testExternalAPI();
+  testSupabaseDirectly();
 }, []);
-
-// Color helper function (useEffect'den sonra ekle)
-const getRandomColor = () => {
-  const colors = [
-    'bg-blue-500', 'bg-green-500', 'bg-purple-500', 
-    'bg-pink-500', 'bg-orange-500', 'bg-teal-500'
-  ];
-  return colors[Math.floor(Math.random() * colors.length)];
-};
   // Test ürünler
 
   // Kategoriler
