@@ -36,11 +36,21 @@ const AmbalajWebsite = () => {
 
   // Güncel dolar kuru çekme (gerçek API entegrasyonu)
 useEffect(() => {
+  // Category mapping function (üstte tanımla)
+  const mapCategory = (supabaseCategory) => {
+    const mapping = {
+      'boxes': 'karton',
+      'bags': 'plastik', 
+      'protection': 'koruyucu',
+      'paper': 'kagit'
+    };
+    return mapping[supabaseCategory] || 'karton';
+  };
+
   const testSupabaseDirectly = async () => {
     try {
       console.log('Testing Supabase directly...');
       
-      // Direct fetch (Supabase client kullanmadan)
       const response = await fetch('https://xdlaylmiwiukgcyqlvel.supabase.co/rest/v1/products', {
         headers: {
           'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
@@ -52,35 +62,37 @@ useEffect(() => {
       console.log('Supabase response status:', response.status);
       
       if (response.ok) {
-  const rawData = await response.json();
-  console.log('Raw Supabase data:', rawData);
+        const rawData = await response.json();
+        console.log('Raw Supabase data:', rawData);
+        
+        // Format data for frontend
+        const formattedProducts = rawData.map(item => ({
+          id: item.id,
+          name: item.name,
+          priceUSD: parseFloat(item.price_usd),
+          category: mapCategory(item.category),
+          categoryName: item.category,
+          description: item.description || '',
+          stock: item.stock || 0,
+          rating: 4.5,
+          color: getRandomColor()
+        }));
+        
+        setProducts(formattedProducts);
+      } else {
+        console.error('Supabase error:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Connection error:', error);
+    }
+  };
   
-  // Format data for frontend
-  const formattedProducts = rawData.map(item => ({
-    id: item.id,
-    name: item.name,
-    priceUSD: parseFloat(item.price_usd), // ← String'den number'a çevir
-    category: mapCategory(item.category), // ← Kategori mapping
-    categoryName: item.category,
-    description: item.description || '',
-    stock: item.stock || 0,
-    rating: 4.5, // Default rating
-    color: getRandomColor()
-  }));
-  
-  setProducts(formattedProducts);
-}
+  // Function'ı çağır
+  testSupabaseDirectly();
+}, []); // useEffect kapanışı
 
 // Category mapping function
-const mapCategory = (supabaseCategory) => {
-  const mapping = {
-    'boxes': 'karton',
-    'bags': 'plastik', 
-    'protection': 'koruyucu',
-    'paper': 'kagit'
-  };
-  return mapping[supabaseCategory] || 'karton';
-};
+
   // Test ürünler
 
   // Kategoriler
