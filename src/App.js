@@ -880,7 +880,7 @@ const response = await fetch('https://xdlaylmiwiukgcyqlvel.supabase.co/auth/v1/s
 body: JSON.stringify({
   email: formData.email,
   password: formData.password,
-  options: {  // ← "data" yerine "options"
+  data: {  // ← "data" yerine "options"
     data: {
       name: formData.name,
       phone: formData.phone
