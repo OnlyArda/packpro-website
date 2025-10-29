@@ -870,21 +870,23 @@ useEffect(() => {
       console.log('🔐 Hesap oluşturuluyor...', formData.email);
       
       // Supabase Auth API call
-      const response = await fetch('https://xdlaylmiwiukgcyqlvel.supabase.co/auth/v1/signup', {
-        method: 'POST',
-        headers: {
-          'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          data: {
-            name: formData.name,
-            phone: formData.phone
-          }
-        })
-      });
+const response = await fetch('https://xdlaylmiwiukgcyqlvel.supabase.co/auth/v1/signup', {
+  method: 'POST',
+  headers: {
+    'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD'  // ← EKLE BUNU
+  },
+body: JSON.stringify({
+  email: formData.email,
+  password: formData.password,
+  options: {  // ← "data" yerine "options"
+    data: {
+      name: formData.name,
+      phone: formData.phone
+    }
+  }
+})
       
       const result = await response.json();
       console.log('📧 Kayıt sonucu:', result);
