@@ -861,51 +861,42 @@ useEffect(() => {
     password: ''
   });
 
-  // Register handler
-// RegisterModal'da sadece test
-const handleRegister = async (e) => {
-  e.preventDefault();
-  
-  try {
-    console.log('Test register:', formData);
+  // Register handler - sadece localStorage test
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
     
-    // Basit test - localStorage'a kaydet
-    const userData = {
-      id: Date.now(),
-      email: formData.email,
-      name: formData.name,
-      phone: formData.phone,
-      createdAt: new Date().toISOString()
-    };
-    
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-    setUser(userData);
-    
-    alert('✅ Test hesabı oluşturuldu!');
-    setIsRegisterOpen(false);
-    navigateToPage('dashboard');
-    
-  } catch (error) {
-    console.error('Error:', error);
-    alert('❌ Hata');
-  }
-};
+    try {
+      console.log('Test register:', formData);
       
-      const result = await response.json();
-      console.log('📧 Kayıt sonucu:', result);
-      
-      if (response.ok && result.user) {
-        // Başarılı kayıt
-        alert('✅ Hesap başarıyla oluşturuldu!');
-        setUser(result.user);
-        setIsRegisterOpen(false);
-        navigateToPage('dashboard');
-      } else {
-        alert('❌ Hata: ' + (result.message || 'Kayıt başarısız'));
+      // Form validation
+      if (!formData.email || !formData.password || !formData.name) {
+        alert('❌ Lütfen gerekli alanları doldurun');
+        return;
       }
+      
+      // Basit test - localStorage'a kaydet
+      const userData = {
+        id: Date.now(),
+        email: formData.email,
+        name: formData.name,
+        phone: formData.phone,
+        createdAt: new Date().toISOString()
+      };
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      localStorage.setItem('currentUser', JSON.stringify(userData));
+      setUser(userData);
+      
+      alert('✅ Test hesabı oluşturuldu!');
+      setIsRegisterOpen(false);
+      navigateToPage('dashboard');
+      
     } catch (error) {
-      console.error('❌ Kayıt hatası:', error);
-      alert('❌ Bağlantı hatası');
+      console.error('Error:', error);
+      alert('❌ Hata oluştu');
     } finally {
       setIsLoading(false);
     }
