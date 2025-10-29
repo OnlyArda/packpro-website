@@ -1,3 +1,10 @@
+const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD';
+
+// Initialize Supabase client directly
+import { createClient } from '@supabase/supabase-js';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 import React, { useState, useEffect } from 'react';
 import { 
   ShoppingCart, User, Menu, X, Package, CreditCard, Building2, 
@@ -63,141 +70,7 @@ const AmbalajWebsite = () => {
   }, []);
 
   // Test ürünleri
-  const products = [
-    {
-      id: 1,
-      name: 'E-Ticaret Kargo Kutusu',
-      category: 'karton',
-      categoryName: 'Karton Kutu',
-      priceUSD: 0.50,
-      description: 'Dayanıklı e-ticaret gönderi kutusu',
-      color: 'bg-blue-500',
-      stock: 1000,
-      rating: 4.8
-    },
-    {
-      id: 2,
-      name: 'Gıda Ambalaj Poşeti',
-      category: 'plastik',
-      categoryName: 'Plastik Ambalaj',
-      priceUSD: 0.15,
-      description: 'Gıda onaylı güvenli ambalaj',
-      color: 'bg-green-500',
-      stock: 5000,
-      rating: 4.9
-    },
-    {
-      id: 3,
-      name: 'Özel Tasarım Hediye Kutusu',
-      category: 'premium',
-      categoryName: 'Premium Ambalaj',
-      priceUSD: 1.20,
-      description: 'Lüks markanız için özel tasarım',
-      color: 'bg-purple-500',
-      stock: 500,
-      rating: 5.0
-    },
-    {
-      id: 4,
-      name: 'Kozmetik Ürün Ambalajı',
-      category: 'premium',
-      categoryName: 'Premium Ambalaj',
-      priceUSD: 0.80,
-      description: 'Kozmetik ürünler için şık ambalaj',
-      color: 'bg-pink-500',
-      stock: 800,
-      rating: 4.7
-    },
-    {
-      id: 5,
-      name: 'Bubble Wrap Naylon',
-      category: 'koruyucu',
-      categoryName: 'Koruyucu Ambalaj',
-      priceUSD: 0.25,
-      description: 'Ürünleriniz için maksimum koruma',
-      color: 'bg-orange-500',
-      stock: 3000,
-      rating: 4.6
-    },
-    {
-      id: 6,
-      name: 'Pizza Kutusu',
-      category: 'gida',
-      categoryName: 'Gıda Ambalajı',
-      priceUSD: 0.35,
-      description: 'Restoran ve pizzacılar için',
-      color: 'bg-red-500',
-      stock: 2000,
-      rating: 4.8
-    },
-    {
-      id: 7,
-      name: 'Kraft Kağıt Torba',
-      category: 'kagit',
-      categoryName: 'Kağıt Ambalaj',
-      priceUSD: 0.20,
-      description: 'Çevre dostu kağıt torba',
-      color: 'bg-yellow-600',
-      stock: 4000,
-      rating: 4.5
-    },
-    {
-      id: 8,
-      name: 'Streç Film',
-      category: 'endustriyel',
-      categoryName: 'Endüstriyel Ambalaj',
-      priceUSD: 0.30,
-      description: 'Palet ambalajlama için',
-      color: 'bg-cyan-500',
-      stock: 2500,
-      rating: 4.7
-    },
-    {
-      id: 9,
-      name: 'Lüks Karton Çanta',
-      category: 'premium',
-      categoryName: 'Premium Ambalaj',
-      priceUSD: 0.95,
-      description: 'Butik mağazalar için',
-      color: 'bg-purple-600',
-      stock: 600,
-      rating: 4.9
-    },
-    {
-      id: 10,
-      name: 'Hızlı Yemek Kabı',
-      category: 'gida',
-      categoryName: 'Gıda Ambalajı',
-      priceUSD: 0.40,
-      description: 'Sızdırmaz gıda kabı',
-      color: 'bg-red-600',
-      stock: 1500,
-      rating: 4.6
-    },
-    {
-      id: 11,
-      name: 'Köpük Köşe Koruyucu',
-      category: 'koruyucu',
-      categoryName: 'Koruyucu Ambalaj',
-      priceUSD: 0.18,
-      description: 'Elektronik eşyalar için',
-      color: 'bg-orange-600',
-      stock: 3500,
-      rating: 4.5
-    },
-    {
-      id: 12,
-      name: 'Kraft Kutu Büyük Boy',
-      category: 'karton',
-      categoryName: 'Karton Kutu',
-      priceUSD: 0.75,
-      description: 'Büyük ürünler için',
-      color: 'bg-blue-600',
-      stock: 800,
-      rating: 4.7
-    }
-  ];
-
+ 
   // Kategoriler
   const categories = [
     { id: 'all', name: 'Tümü', Icon: Package, count: products.length },
@@ -275,16 +148,25 @@ const AmbalajWebsite = () => {
   };
 
   // Sayfa yüklendiğinde sepeti LocalStorage'dan al
-  useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      try {
-        setCart(JSON.parse(savedCart));
-      } catch (e) {
-        console.error('Sepet yüklenemedi:', e);
-      }
+useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*');
+      
+      if (error) throw error;
+      
+      console.log('Products from Supabase:', data);
+      setProducts(data || []);
+    } catch (error) {
+      console.error('Supabase error:', error);
+      // Fallback'i kaldır veya küçült
     }
-  }, []);
+  };
+  
+  fetchProducts();
+}, []);
 
   // Navigation Component
   const Navigation = () => (
