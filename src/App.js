@@ -76,11 +76,39 @@ useEffect(() => {
 // 2. Exchange Rate useEffect (YENİ - bunu ekle)
 // Test için immediate update
 useEffect(() => {
-  // Basit test - immediate set
-  setTimeout(() => {
-    setExchangeRate(34.85);
-    console.log('Test kuru ayarlandı: 34.85');
-  }, 2000); // 2 saniye sonra
+  const fetchExchangeRate = async () => {
+    setIsLoadingRate(true);
+    try {
+      console.log('🔄 Gerçek döviz kuru alınıyor...');
+      
+      // Gerçek API call
+      const response = await fetch('https://v6.exchangerate-api.com/v6/latest/USD');
+      const data = await response.json();
+      
+      if (data && data.conversion_rates && data.conversion_rates.TRY) {
+        const rate = data.conversion_rates.TRY;
+        setExchangeRate(rate);
+        console.log('💱 Güncel kur:', rate, 'TRY');
+      } else {
+        // Fallback
+        setExchangeRate(34.85);
+        console.log('⚠️ Fallback kur kullanıldı');
+      }
+    } catch (error) {
+      console.error('❌ API hatası:', error);
+      setExchangeRate(34.85); // Safe fallback
+    } finally {
+      setIsLoadingRate(false);
+    }
+  };
+
+  // İlk yükleme
+  fetchExchangeRate();
+  
+  // Her 30 dakikada bir güncelle
+  const interval = setInterval(fetchExchangeRate, 1800000);
+  
+  return () => clearInterval(interval);
 }, []);
 
 // Category mapping function
