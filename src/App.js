@@ -111,6 +111,34 @@ useEffect(() => {
 }, []);
 // Category mapping function
 
+  useEffect(() => {
+  const checkSession = () => {
+    const savedUser = localStorage.getItem('currentUser');
+    const sessionActive = sessionStorage.getItem('userSession');
+    
+    if (savedUser && sessionActive === 'active') {
+      try {
+        const userData = JSON.parse(savedUser);
+        setUser(userData);
+        console.log('👤 Session restored:', userData.email);
+      } catch (e) {
+        localStorage.removeItem('currentUser');
+        sessionStorage.removeItem('userSession');
+      }
+    }
+  };
+  
+  checkSession();
+}, []);
+
+// Logout function
+const handleLogout = () => {
+  localStorage.removeItem('currentUser');
+  sessionStorage.removeItem('userSession');
+  setUser(null);
+  navigateToPage('home');
+  console.log('👋 Çıkış yapıldı');
+};
   // Test ürünler
 
   // Kategoriler
