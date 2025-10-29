@@ -807,8 +807,8 @@ useEffect(() => {
   );
 
   // Login Modal
-  const LoginModal = () => (
-    const LoginModal = () => {
+  const LoginModal = () => {
+  // Login state'leri
   const [isLoading, setIsLoading] = useState(false);
   const [loginData, setLoginData] = useState({
     email: '',
@@ -822,10 +822,15 @@ useEffect(() => {
     try {
       console.log('🔐 Giriş yapılıyor...', loginData.email);
       
-      // Password hash
+      if (!loginData.email || !loginData.password) {
+        alert('❌ Email ve şifre gerekli');
+        return;
+      }
+      
+      // Password hash (same salt as register)
       const passwordHash = btoa(loginData.password + 'ambalaj_salt_2025');
       
-      // Check user credentials
+      // Check user credentials in database
       const response = await fetch(`https://xdlaylmiwiukgcyqlvel.supabase.co/rest/v1/users?email=eq.${loginData.email}&password_hash=eq.${passwordHash}`, {
         headers: {
           'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
@@ -837,7 +842,9 @@ useEffect(() => {
       
       if (users.length > 0) {
         const userData = users[0];
+        console.log('✅ Giriş başarılı:', userData.email);
         
+        // Create session
         const sessionUser = {
           id: userData.id,
           email: userData.email,
@@ -851,7 +858,7 @@ useEffect(() => {
         sessionStorage.setItem('userSession', 'active');
         setUser(sessionUser);
         
-        alert('✅ Giriş başarılı!');
+        alert('✅ Hoşgeldiniz ' + userData.name + '!');
         setIsLoginOpen(false);
         navigateToPage('dashboard');
         
@@ -866,6 +873,8 @@ useEffect(() => {
       setIsLoading(false);
     }
   };
+
+  return (
     isLoginOpen && (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
@@ -877,12 +886,15 @@ useEffect(() => {
               <X className="h-6 w-6" />
             </button>
           </div>
-          <form className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-5">
             <div>
               <label className="block text-sm font-semibold mb-2 text-gray-700">E-posta</label>
               <input 
                 type="email" 
                 placeholder="ornek@email.com"
+                value={loginData.email}
+                onChange={(e) => setLoginData({...loginData, email: e.target.value})}
+                required
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none" 
               />
             </div>
@@ -891,11 +903,18 @@ useEffect(() => {
               <input 
                 type="password" 
                 placeholder="••••••••"
+                value={loginData.password}
+                onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                required
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none" 
               />
             </div>
-            <button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-bold">
-              Giriş Yap
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-bold disabled:opacity-50"
+            >
+              {isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
             </button>
           </form>
           <div className="mt-6 text-center">
@@ -907,7 +926,7 @@ useEffect(() => {
       </div>
     )
   );
-
+};
   // Register Modal
   const RegisterModal = () => {
   // Form state'leri
@@ -919,94 +938,93 @@ useEffect(() => {
     password: ''
   });
 
-  // Register handler - sadece localStorage test
-const handleRegister = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
-  
-  try {
-    console.log('🔐 Gerçek hesap oluşturuluyor...', formData.email);
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
     
-    // Form validation
-    if (!formData.email || !formData.password || !formData.name) {
-      alert('❌ Lütfen gerekli alanları doldurun');
-      return;
-    }
-    
-    if (formData.password.length < 6) {
-      alert('❌ Şifre en az 6 karakter olmalı');
-      return;
-    }
-    
-    // Simple password hash (production'da bcrypt kullan)
-    const passwordHash = btoa(formData.password + 'ambalaj_salt_2025');
-    
-    // Check if user exists
-    const checkResponse = await fetch(`https://xdlaylmiwiukgcyqlvel.supabase.co/rest/v1/users?email=eq.${formData.email}`, {
-      headers: {
-        'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
-        'Authorization': 'Bearer sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD'
+    try {
+      console.log('🔐 Gerçek hesap oluşturuluyor...', formData.email);
+      
+      // Form validation
+      if (!formData.email || !formData.password || !formData.name) {
+        alert('❌ Lütfen gerekli alanları doldurun');
+        return;
       }
-    });
-    
-    const existingUsers = await checkResponse.json();
-    
-    if (existingUsers.length > 0) {
-      alert('❌ Bu email ile zaten hesap mevcut');
-      return;
+      
+      if (formData.password.length < 6) {
+        alert('❌ Şifre en az 6 karakter olmalı');
+        return;
+      }
+      
+      // Simple password hash (production güvenlik)
+      const passwordHash = btoa(formData.password + 'ambalaj_salt_2025');
+      
+      // Check if user exists
+      const checkResponse = await fetch(`https://xdlaylmiwiukgcyqlvel.supabase.co/rest/v1/users?email=eq.${formData.email}`, {
+        headers: {
+          'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
+          'Authorization': 'Bearer sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD'
+        }
+      });
+      
+      const existingUsers = await checkResponse.json();
+      
+      if (existingUsers.length > 0) {
+        alert('❌ Bu email ile zaten hesap mevcut');
+        return;
+      }
+      
+      // Create new user in database
+      const response = await fetch('https://xdlaylmiwiukgcyqlvel.supabase.co/rest/v1/users', {
+        method: 'POST',
+        headers: {
+          'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
+          'Authorization': 'Bearer sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          name: formData.name,
+          phone: formData.phone,
+          password_hash: passwordHash,
+          balance: 0.00
+        })
+      });
+      
+      if (response.ok) {
+        const userData = await response.json();
+        console.log('✅ Kullanıcı database'e kaydedildi:', userData);
+        
+        // Session'a kaydet
+        const sessionUser = {
+          id: userData[0].id,
+          email: userData[0].email,
+          name: userData[0].name,
+          phone: userData[0].phone,
+          balance: userData[0].balance,
+          loginTime: new Date().toISOString()
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(sessionUser));
+        sessionStorage.setItem('userSession', 'active');
+        setUser(sessionUser);
+        
+        alert('✅ Hesap başarıyla oluşturuldu!');
+        setIsRegisterOpen(false);
+        navigateToPage('dashboard');
+        
+      } else {
+        alert('❌ Hesap oluşturulamadı - Tekrar deneyin');
+      }
+      
+    } catch (error) {
+      console.error('❌ Kayıt hatası:', error);
+      alert('❌ Bağlantı hatası');
+    } finally {
+      setIsLoading(false);
     }
-    
-    // Create new user
-    const response = await fetch('https://xdlaylmiwiukgcyqlvel.supabase.co/rest/v1/users', {
-      method: 'POST',
-      headers: {
-        'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
-        'Authorization': 'Bearer sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      },
-      body: JSON.stringify({
-        email: formData.email,
-        name: formData.name,
-        phone: formData.phone,
-        password_hash: passwordHash,
-        balance: 0.00
-      })
-    });
-    
-    if (response.ok) {
-      const userData = await response.json();
-      console.log('✅ Kullanıcı kaydedildi:', userData);
-      
-      // Session'a kaydet
-      const sessionUser = {
-        id: userData[0].id,
-        email: userData[0].email,
-        name: userData[0].name,
-        phone: userData[0].phone,
-        balance: userData[0].balance,
-        loginTime: new Date().toISOString()
-      };
-      
-      localStorage.setItem('currentUser', JSON.stringify(sessionUser));
-      sessionStorage.setItem('userSession', 'active');
-      setUser(sessionUser);
-      
-      alert('✅ Hesap başarıyla oluşturuldu!');
-      setIsRegisterOpen(false);
-      navigateToPage('dashboard');
-      
-    } else {
-      alert('❌ Hesap oluşturulamadı');
-    }
-    
-  } catch (error) {
-    console.error('❌ Kayıt hatası:', error);
-    alert('❌ Bağlantı hatası');
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return (
     isRegisterOpen && (
