@@ -36,60 +36,41 @@ const AmbalajWebsite = () => {
 
   // Güncel dolar kuru çekme (gerçek API entegrasyonu)
 useEffect(() => {
-  // Category mapping function (üstte tanımla)
-  const mapCategory = (supabaseCategory) => {
-    const mapping = {
-      'boxes': 'karton',
-      'bags': 'plastik', 
-      'protection': 'koruyucu',
-      'paper': 'kagit'
-    };
-    return mapping[supabaseCategory] || 'karton';
-  };
-
-  const testSupabaseDirectly = async () => {
+  const fetchProducts = async () => {
     try {
-      console.log('Testing Supabase directly...');
-      
       const response = await fetch('https://xdlaylmiwiukgcyqlvel.supabase.co/rest/v1/products', {
         headers: {
           'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
-          'Authorization': 'Bearer sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
-          'Content-Type': 'application/json'
+          'Authorization': 'Bearer sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD'
         }
       });
       
-      console.log('Supabase response status:', response.status);
-      
       if (response.ok) {
-        const rawData = await response.json();
-        console.log('Raw Supabase data:', rawData);
+        const data = await response.json();
+        console.log('Supabase data:', data);
         
-        // Format data for frontend
-        const formattedProducts = rawData.map(item => ({
+        // Basit mapping - hiç hata vermesin
+        const products = data.map(item => ({
           id: item.id,
-          name: item.name,
-          priceUSD: parseFloat(item.price_usd),
-          category: mapCategory(item.category),
-          categoryName: item.category,
+          name: item.name || 'Ürün',
+          priceUSD: item.price_usd || 0,
+          category: 'karton', // Sabit kategori
+          categoryName: item.category || 'Genel',
           description: item.description || '',
           stock: item.stock || 0,
           rating: 4.5,
-          color: getRandomColor()
+          color: 'bg-blue-500' // Sabit renk
         }));
         
-        setProducts(formattedProducts);
-      } else {
-        console.error('Supabase error:', response.status, response.statusText);
+        setProducts(products);
       }
     } catch (error) {
-      console.error('Connection error:', error);
+      console.log('Error:', error);
     }
   };
   
-  // Function'ı çağır
-  testSupabaseDirectly();
-}, []); // useEffect kapanışı
+  fetchProducts();
+}, []);
 
 // Category mapping function
 
