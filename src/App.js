@@ -1,10 +1,3 @@
-const SUPABASE_URL = 'https://xdlaylmiwiukgcyqlvel.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD';
-
-// Initialize Supabase client directly
-import { createClient } from '@supabase/supabase-js';
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 import React, { useState, useEffect } from 'react';
 import { 
   ShoppingCart, User, Menu, X, Package, CreditCard, Building2, 
