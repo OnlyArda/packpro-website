@@ -844,35 +844,41 @@ const handleLogout = () => {
   });
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+  e.preventDefault();
+  setIsLoading(true);
+  
+  try {
+    console.log('🔐 Login Debug başlıyor...');
+    console.log('📧 Email:', loginData.email);
+    console.log('🔑 Raw password:', loginData.password);
     
-    try {
-      console.log('🔐 Giriş yapılıyor...', loginData.email);
-      
-      if (!loginData.email || !loginData.password) {
-        alert('❌ Email ve şifre gerekli');
-        return;
+    // Password hash (aynı salt)
+    const passwordHash = btoa(loginData.password + 'ambalaj_salt_2025');
+    console.log('🔒 Generated hash:', passwordHash);
+    
+    // Önce kullanıcıyı email ile bul (şifre olmadan)
+    const userCheckUrl = `https://xdlaylmiwiukgcyqlvel.supabase.co/rest/v1/users?email=eq.${loginData.email}`;
+    console.log('🌐 User check URL:', userCheckUrl);
+    
+    const userResponse = await fetch(userCheckUrl, {
+      headers: {
+        'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
+        'Authorization': 'Bearer sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD'
       }
+    });
+    
+    const foundUsers = await userResponse.json();
+    console.log('👤 Found users by email:', foundUsers);
+    
+    if (foundUsers.length > 0) {
+      console.log('✅ User exists in database');
+      console.log('🔒 Stored hash:', foundUsers[0].password_hash);
+      console.log('🔒 Our hash:   ', passwordHash);
+      console.log('🤔 Hash match:', foundUsers[0].password_hash === passwordHash);
       
-      // Password hash (same salt as register)
-      const passwordHash = btoa(loginData.password + 'ambalaj_salt_2025');
-      
-      // Check user credentials in database
-      const response = await fetch(`https://xdlaylmiwiukgcyqlvel.supabase.co/rest/v1/users?email=eq.${loginData.email}&password_hash=eq.${passwordHash}`, {
-        headers: {
-          'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
-          'Authorization': 'Bearer sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD'
-        }
-      });
-      
-      const users = await response.json();
-      
-      if (users.length > 0) {
-        const userData = users[0];
-        console.log('✅ Giriş başarılı:', userData.email);
-        
-        // Create session
+      if (foundUsers[0].password_hash === passwordHash) {
+        // Login successful
+        const userData = foundUsers[0];
         const sessionUser = {
           id: userData.id,
           email: userData.email,
@@ -886,21 +892,25 @@ const handleLogout = () => {
         sessionStorage.setItem('userSession', 'active');
         setUser(sessionUser);
         
-        alert('✅ Hoşgeldiniz ' + userData.name + '!');
+        alert('✅ Giriş başarılı!');
         setIsLoginOpen(false);
         navigateToPage('dashboard');
-        
       } else {
-        alert('❌ Email veya şifre hatalı');
+        console.log('❌ Password hash mismatch!');
+        alert('❌ Şifre hatalı');
       }
-      
-    } catch (error) {
-      console.error('❌ Giriş hatası:', error);
-      alert('❌ Bağlantı hatası');
-    } finally {
-      setIsLoading(false);
+    } else {
+      console.log('❌ User not found');
+      alert('❌ Email bulunamadı');
     }
-  };
+    
+  } catch (error) {
+    console.error('❌ Login error:', error);
+    alert('❌ Bağlantı hatası');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     isLoginOpen && (
