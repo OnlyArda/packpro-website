@@ -52,23 +52,35 @@ useEffect(() => {
       console.log('Supabase response status:', response.status);
       
       if (response.ok) {
-        const data = await response.json();
-        console.log('Supabase data:', data);
-        setProducts(data);
-      } else {
-        console.error('Supabase error:', response.status, response.statusText);
-        // Fake API fallback
-        const fallbackResponse = await fetch('https://fakestoreapi.com/products?limit=8');
-        const fallbackData = await fallbackResponse.json();
-        setProducts(fallbackData.map(/* format code */));
-      }
-    } catch (error) {
-      console.error('Connection error:', error);
-    }
-  };
+  const rawData = await response.json();
+  console.log('Raw Supabase data:', rawData);
   
-  testSupabaseDirectly();
-}, []);
+  // Format data for frontend
+  const formattedProducts = rawData.map(item => ({
+    id: item.id,
+    name: item.name,
+    priceUSD: parseFloat(item.price_usd), // ← String'den number'a çevir
+    category: mapCategory(item.category), // ← Kategori mapping
+    categoryName: item.category,
+    description: item.description || '',
+    stock: item.stock || 0,
+    rating: 4.5, // Default rating
+    color: getRandomColor()
+  }));
+  
+  setProducts(formattedProducts);
+}
+
+// Category mapping function
+const mapCategory = (supabaseCategory) => {
+  const mapping = {
+    'boxes': 'karton',
+    'bags': 'plastik', 
+    'protection': 'koruyucu',
+    'paper': 'kagit'
+  };
+  return mapping[supabaseCategory] || 'karton';
+};
   // Test ürünler
 
   // Kategoriler
