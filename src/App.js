@@ -145,28 +145,25 @@ const AmbalajWebsite = () => {
 
   // Sayfa yüklendiğinde sepeti LocalStorage'dan al
 // Geçici test products (Supabase çalışana kadar)
-  useEffect(() => {
-    const mockProducts = [
-      {
-        id: '1',
-        name: 'Test Ürün 1',
-        price_usd: 5.99,
-        category: 'boxes',
-        description: 'Test açıklama',
-        stock: 100
-      },
-      {
-        id: '2', 
-        name: 'Test Ürün 2',
-        price_usd: 3.50,
-        category: 'bags',
-        description: 'Test açıklama 2',
-        stock: 50
-      }
-    ];
-    
-    setProducts(mockProducts);
-  }, []);
+useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*');
+      
+      if (error) throw error;
+      
+      console.log('Products from Supabase:', data);
+      setProducts(data || []);
+    } catch (error) {
+      console.error('Supabase error:', error);
+      // Fallback'i kaldır veya küçült
+    }
+  };
+  
+  fetchProducts();
+}, []);
 
   // Navigation Component
   const Navigation = () => (
