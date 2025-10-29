@@ -851,7 +851,62 @@ useEffect(() => {
   );
 
   // Register Modal
-  const RegisterModal = () => (
+  const RegisterModal = () => {
+  // Form state'leri
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    password: ''
+  });
+
+  // Register handler
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      console.log('🔐 Hesap oluşturuluyor...', formData.email);
+      
+      // Supabase Auth API call
+      const response = await fetch('https://xdlaylmiwiukgcyqlvel.supabase.co/auth/v1/signup', {
+        method: 'POST',
+        headers: {
+          'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          data: {
+            name: formData.name,
+            phone: formData.phone
+          }
+        })
+      });
+      
+      const result = await response.json();
+      console.log('📧 Kayıt sonucu:', result);
+      
+      if (response.ok && result.user) {
+        // Başarılı kayıt
+        alert('✅ Hesap başarıyla oluşturuldu!');
+        setUser(result.user);
+        setIsRegisterOpen(false);
+        navigateToPage('dashboard');
+      } else {
+        alert('❌ Hata: ' + (result.message || 'Kayıt başarısız'));
+      }
+    } catch (error) {
+      console.error('❌ Kayıt hatası:', error);
+      alert('❌ Bağlantı hatası');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
     isRegisterOpen && (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -863,12 +918,15 @@ useEffect(() => {
               <X className="h-6 w-6" />
             </button>
           </div>
-          <form className="space-y-5">
+          <form onSubmit={handleRegister} className="space-y-5">
             <div>
               <label className="block text-sm font-semibold mb-2 text-gray-700">Ad Soyad</label>
               <input 
                 type="text" 
                 placeholder="Ahmet Yılmaz"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none" 
               />
             </div>
@@ -877,6 +935,9 @@ useEffect(() => {
               <input 
                 type="email" 
                 placeholder="ornek@email.com"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                required
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none" 
               />
             </div>
@@ -885,6 +946,8 @@ useEffect(() => {
               <input 
                 type="tel" 
                 placeholder="0555 123 45 67"
+                value={formData.phone}
+                onChange={(e) => setFormData({...formData, phone: e.target.value})}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none" 
               />
             </div>
@@ -893,11 +956,19 @@ useEffect(() => {
               <input 
                 type="password" 
                 placeholder="••••••••"
+                value={formData.password}
+                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                required
+                minLength="6"
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none" 
               />
             </div>
-            <button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-bold">
-              Kayıt Ol
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-bold disabled:opacity-50"
+            >
+              {isLoading ? 'Kaydediliyor...' : 'Kayıt Ol'}
             </button>
           </form>
           <div className="mt-6 text-center">
@@ -909,6 +980,7 @@ useEffect(() => {
       </div>
     )
   );
+};
 
   // Dashboard Page (User Panel)
   const DashboardPage = () => (
