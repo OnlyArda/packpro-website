@@ -862,31 +862,34 @@ useEffect(() => {
   });
 
   // Register handler
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+// RegisterModal'da sadece test
+const handleRegister = async (e) => {
+  e.preventDefault();
+  
+  try {
+    console.log('Test register:', formData);
     
-    try {
-      console.log('🔐 Hesap oluşturuluyor...', formData.email);
-      
-      // Supabase Auth API call
-const response = await fetch('https://xdlaylmiwiukgcyqlvel.supabase.co/auth/v1/signup', {
-  method: 'POST',
-  headers: {
-    'apikey': 'sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD',
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer sb_publishable_LKRk8d_j0Smdz1qO6mVrUA_1HjlW7xD'  // ← EKLE BUNU
-  },
-body: JSON.stringify({
-  email: formData.email,
-  password: formData.password,
-  data: {  // ← "data" yerine "options"
-    data: {
+    // Basit test - localStorage'a kaydet
+    const userData = {
+      id: Date.now(),
+      email: formData.email,
       name: formData.name,
-      phone: formData.phone
-    }
+      phone: formData.phone,
+      createdAt: new Date().toISOString()
+    };
+    
+    localStorage.setItem('currentUser', JSON.stringify(userData));
+    setUser(userData);
+    
+    alert('✅ Test hesabı oluşturuldu!');
+    setIsRegisterOpen(false);
+    navigateToPage('dashboard');
+    
+  } catch (error) {
+    console.error('Error:', error);
+    alert('❌ Hata');
   }
-})
+};
       
       const result = await response.json();
       console.log('📧 Kayıt sonucu:', result);
