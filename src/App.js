@@ -111,20 +111,48 @@ useEffect(() => {
 }, []);
 // Category mapping function
 
-  useEffect(() => {
+// Session check useEffect'ini bununla değiştir
+useEffect(() => {
   const checkSession = () => {
-    const savedUser = localStorage.getItem('currentUser');
-    const sessionActive = sessionStorage.getItem('userSession');
-    
-    if (savedUser && sessionActive === 'active') {
-      try {
+    try {
+      const savedUser = localStorage.getItem('currentUser');
+      const sessionActive = sessionStorage.getItem('userSession');
+      
+      console.log('🔍 Session check:', {
+        savedUser: !!savedUser,
+        sessionActive: sessionActive
+      });
+      
+      // Her iki condition da true olmalı
+      if (savedUser && sessionActive === 'active') {
         const userData = JSON.parse(savedUser);
-        setUser(userData);
-        console.log('👤 Session restored:', userData.email);
-      } catch (e) {
-        localStorage.removeItem('currentUser');
-        sessionStorage.removeItem('userSession');
+        
+        // Session validation - 24 saat geçmişse expire et
+        const loginTime = new Date(userData.loginTime);
+        const now = new Date();
+        const hoursDiff = (now - loginTime) / (1000 * 60 * 60);
+        
+        if (hoursDiff < 24) {
+          setUser(userData);
+          console.log('👤 Session restored:', userData.email);
+        } else {
+          // Session expired
+          console.log('⏰ Session expired, clearing...');
+          localStorage.removeItem('currentUser');
+          sessionStorage.removeItem('userSession');
+          setUser(null);
+        }
+      } else {
+        // Session invalid/missing
+        console.log('❌ No valid session found');
+        setUser(null);
       }
+    } catch (error) {
+      console.error('❌ Session check error:', error);
+      // Error durumunda session'ı temizle
+      localStorage.removeItem('currentUser');
+      sessionStorage.removeItem('userSession');
+      setUser(null);
     }
   };
   
