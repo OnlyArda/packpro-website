@@ -16,7 +16,16 @@ import {
 } from 'lucide-react';
 
 const AmbalajWebsite = () => {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState([
+  {
+    id: '1',
+    name: 'SQL Test Ürün',
+    price_usd: 9.99,
+    category: 'test',
+    description: 'Database test',
+    stock: 1
+  }
+]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
