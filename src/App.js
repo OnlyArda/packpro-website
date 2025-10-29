@@ -1219,10 +1219,11 @@ const handleRegister = async (e) => {
                 <Settings className="h-5 w-5" />
                 <span>Profil Ayarları</span>
               </button>
-              <button onClick={() => setUser(null)} className="w-full text-left px-5 py-4 hover:bg-red-50 text-red-600 rounded-2xl font-medium transition-all mt-4 flex items-center space-x-3">
-                <LogOut className="h-5 w-5" />
-                <span>Çıkış Yap</span>
-              </button>
+// Dashboard'da logout butonu şöyle olmalı:
+<button onClick={handleLogout} className="w-full text-left px-5 py-4 hover:bg-red-50 text-red-600 rounded-2xl font-medium transition-all mt-4 flex items-center space-x-3">
+  <LogOut className="h-5 w-5" />
+  <span>Çıkış Yap</span>
+</button>
             </div>
           </div>
 
