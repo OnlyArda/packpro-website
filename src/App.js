@@ -82,7 +82,7 @@ useEffect(() => {
       console.log('🔄 Ücretsiz API ile kur alınıyor...');
       
       // Ücretsiz endpoint (key gerektirmez)
-      const response = await fetch('https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/usd/try.json');
+      const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
       const data = await response.json();
       
       if (data && data.rates && data.rates.TRY) {
